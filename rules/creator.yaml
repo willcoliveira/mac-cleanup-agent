@@ -1,0 +1,41 @@
+# Heavy data / creator rules. Strictly protective: personal media is reported,
+# never offered. Only byte-identical duplicates and render intermediates you
+# define yourself (in ~/.config/mac-cleanup-agent/rules.yaml) are offered.
+rules:
+  - id: creator.large-files
+    profile: creator
+    area: large-files
+    title: Large files (1 GB+) in Downloads, Desktop, Documents and Movies
+    risk: caution
+    minBytes: 1000000000
+    insideUserFolders: true
+    find: { detector: large-files }
+    action: { type: report-only }
+    regenerate: These are your files. Move them to an external drive or cloud storage if you need the space.
+
+  - id: creator.duplicates
+    profile: creator
+    area: duplicates
+    title: Byte-identical duplicate files
+    risk: caution
+    minBytes: 10000000
+    insideUserFolders: true
+    find: { detector: duplicates }
+    action: { type: report-only }
+    regenerate: An identical copy exists elsewhere; decide which one to keep.
+
+  - id: creator.final-cut-render
+    profile: creator
+    area: media-intermediates
+    title: Final Cut Pro render files
+    risk: review
+    insideUserFolders: true
+    minBytes: 100000000
+    find:
+      search:
+        roots: ["~/Movies"]
+        names: ["Render Files", "Transcoded Media", "Proxy Media"]
+        maxDepth: 6
+        git: any
+    regenerate: Final Cut Pro re-renders and re-transcodes when you open the project.
+    requiresQuit: ["Final Cut Pro"]

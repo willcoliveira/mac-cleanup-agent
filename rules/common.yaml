@@ -1,0 +1,10 @@
+# Rules every profile gets.
+rules:
+  - id: common.user-logs
+    profile: common
+    area: app-caches
+    title: Old app logs
+    risk: safe
+    minBytes: 50000000
+    find: { paths: ["~/Library/Logs/DiagnosticReports"] }
+    regenerate: Apps write new logs as they run.

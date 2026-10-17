@@ -1,0 +1,63 @@
+# PM / business user rules: installers, archives already extracted, app caches.
+rules:
+  - id: pm.installers
+    profile: pm
+    area: installers
+    title: Installer disk images and packages in Downloads
+    risk: review
+    minBytes: 0
+    find: { detector: installers }
+    regenerate: Download the installer again from the vendor if you ever need it.
+    notes: ["Apps you already installed don't need their .dmg any more."]
+
+  - id: pm.archives-extracted
+    profile: pm
+    area: archives
+    title: Zip files already extracted next to them
+    risk: review
+    minBytes: 0
+    find: { detector: archives-extracted }
+    regenerate: The extracted folder next to it holds the same content.
+
+  - id: pm.chrome-cache
+    profile: pm
+    area: app-caches
+    title: Google Chrome cache
+    risk: safe
+    find: { paths: ["~/Library/Caches/Google/Chrome", "~/Library/Caches/Google/Chrome-headless"] }
+    regenerate: Chrome rebuilds its cache while you browse. Bookmarks, passwords and history are not here.
+    requiresQuit: ["Google Chrome"]
+
+  - id: pm.vscode-updater
+    profile: pm
+    area: app-caches
+    title: VS Code update downloads
+    risk: safe
+    find: { paths: ["~/Library/Caches/com.microsoft.VSCode.ShipIt"] }
+    regenerate: VS Code downloads the next update when it needs it.
+
+  - id: pm.slack-cache
+    profile: pm
+    area: app-caches
+    title: Slack cache
+    risk: safe
+    find: { paths: ["~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application Support/Slack/Cache", "~/Library/Application Support/Slack/Cache"] }
+    regenerate: Slack downloads media again when you open a conversation.
+    requiresQuit: ["Slack"]
+
+  - id: pm.teams-cache
+    profile: pm
+    area: app-caches
+    title: Microsoft Teams cache
+    risk: safe
+    find: { paths: ["~/Library/Containers/com.microsoft.teams2/Data/Library/Caches"] }
+    regenerate: Teams rebuilds its cache on the next start.
+    requiresQuit: ["MSTeams"]
+
+  - id: pm.docker-installer-leftover
+    profile: pm
+    area: app-caches
+    title: Docker Desktop installer leftovers
+    risk: safe
+    find: { paths: ["~/Library/Application Support/com.docker.install"] }
+    regenerate: Only used during a Docker Desktop install or update.

@@ -1,0 +1,53 @@
+# QA / test engineer rules: browser binaries, test reports, recordings from test sessions.
+rules:
+  - id: qa.playwright-old-builds
+    profile: qa
+    area: browser-test-binaries
+    title: Older Playwright browser builds
+    risk: safe
+    find: { detector: playwright-old-builds }
+    regenerate: npx playwright install downloads the browser for the version a project pins.
+    notes: ["The newest build of each browser is always kept."]
+
+  - id: qa.test-reports
+    profile: qa
+    area: test-reports
+    title: Test reports and traces
+    risk: review
+    insideUserFolders: true
+    minBytes: 5000000
+    find:
+      search:
+        roots: ["~"]
+        names: ["playwright-report", "test-results", "test-reports", "allure-results", "allure-report", "blob-report", ".playwright-cli"]
+        git: ignored
+    regenerate: The next test run writes new reports.
+
+  - id: qa.cypress-cache
+    profile: qa
+    area: browser-test-binaries
+    title: Cypress binary cache
+    risk: safe
+    find: { paths: ["~/Library/Caches/Cypress"] }
+    regenerate: npx cypress install downloads the binary again.
+
+  - id: qa.screen-recordings
+    profile: qa
+    area: screen-recordings
+    title: Screen recordings in Downloads and Desktop
+    risk: caution
+    insideUserFolders: true
+    find: { detector: screen-recordings }
+    regenerate: Recordings can't be regenerated; keep any you still need.
+    notes: ["Never pre-approved: check whether a recording is raw footage you still need."]
+
+  - id: qa.screenshots
+    profile: qa
+    area: screenshots
+    title: Screenshots in Downloads and Desktop
+    risk: caution
+    insideUserFolders: true
+    minBytes: 0
+    find: { detector: screenshots }
+    regenerate: Screenshots can't be regenerated; keep any you still need.
+    notes: ["Photos taken with a camera are never classified as screenshots."]

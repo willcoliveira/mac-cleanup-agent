@@ -1,0 +1,21 @@
+# Built-in rules for `mac-cleanup-agent organize`. Copy this file to
+# ~/.config/mac-cleanup-agent/organize.yaml to change categories or keywords.
+# Keywords match anywhere in the filename, case- and accent-insensitive.
+# The first matching category wins, so put specific categories first.
+extensions: [".pdf", ".docx", ".doc", ".xlsx", ".xls", ".ods", ".odt", ".csv", ".pages", ".numbers", ".rtf", ".xml", ".textclipping"]
+fallback: Unsorted
+categories:
+  - folder: Travel
+    keywords: [boarding pass, e-ticket, eticket, itinerary, booking.com, hotel confirmation, confirmation hotel, flight, voo, vuelo, reserva hotel]
+  - folder: Personal and IDs
+    keywords: [passport, passaporte, pasaporte, reisepass, id card, identity card, cartao de cidadao, residence permit, autorizacao de residencia, birth certificate, certidao, certificado, marriage, casamento, matrimonio, driver, driving licence, carta de conducao, cnh, visa, photoid]
+  - folder: Medical
+    keywords: [exame, exam result, resultado, medical, prescription, receita medica, laboratorio, lab result, vaccine, vacina]
+  - folder: Taxes
+    keywords: [irs, tax return, tax assessment, imposto, impuesto, steuer, vat return, iva, saf-t, saft, declaracao, liquidacao]
+  - folder: Invoices and Receipts
+    keywords: [fatura, factura, invoice, rechnung, facture, receipt, recibo, comprovativo, comprobante, nota de credito, credit note, extrato, statement, payslip, salario, holerite, timesheet, quittung]
+  - folder: Contracts
+    keywords: [contract, contrato, vertrag, agreement, acordo, nda, terms, procuracao, power of attorney, mandato]
+  - folder: CV and Career
+    keywords: [resume, curriculum, cv-, cv_, " cv", cover letter, carta de apresentacao, job description, offer letter, resignation]

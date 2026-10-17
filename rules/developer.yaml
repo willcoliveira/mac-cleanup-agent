@@ -1,0 +1,234 @@
+# Developer rules: package-manager caches, build outputs, toolchains, Docker, Xcode.
+# Every rule says how the space comes back (regenerate) and how risky it is.
+# Contribute a rule: see CONTRIBUTING.md. Patterns are names and * ? globs only.
+rules:
+  - id: dev.npm-cache
+    profile: developer
+    area: package-caches
+    title: npm download cache
+    risk: safe
+    find: { paths: ["~/.npm/_cacache"] }
+    action: { type: tool, tool: npm-cache-clean }
+    regenerate: npm downloads packages again on the next install.
+
+  - id: dev.uv-cache
+    profile: developer
+    area: package-caches
+    title: uv (Python) cache
+    risk: safe
+    find: { paths: ["~/.cache/uv"] }
+    action: { type: tool, tool: uv-cache-clean }
+    regenerate: uv downloads wheels again when a project syncs.
+
+  - id: dev.pip-cache
+    profile: developer
+    area: package-caches
+    title: pip cache
+    risk: safe
+    find: { paths: ["~/Library/Caches/pip"] }
+    regenerate: pip downloads packages again when needed.
+
+  - id: dev.poetry-cache
+    profile: developer
+    area: package-caches
+    title: Poetry cache and virtualenvs
+    risk: review
+    find: { paths: ["~/Library/Caches/pypoetry"] }
+    regenerate: poetry install recreates the cache and the project virtualenvs.
+    notes: ["Poetry keeps project virtualenvs here; projects need `poetry install` again."]
+
+  - id: dev.pnpm-store
+    profile: developer
+    area: package-caches
+    title: pnpm content store
+    risk: safe
+    find: { paths: ["~/Library/pnpm/store"] }
+    regenerate: pnpm downloads packages again on the next install.
+
+  - id: dev.yarn-cache
+    profile: developer
+    area: package-caches
+    title: Yarn cache
+    risk: safe
+    find: { paths: ["~/Library/Caches/Yarn"] }
+    regenerate: Yarn downloads packages again on the next install.
+
+  - id: dev.gradle-caches
+    profile: developer
+    area: package-caches
+    title: Gradle caches
+    risk: safe
+    find: { paths: ["~/.gradle/caches"] }
+    regenerate: Gradle downloads dependencies again on the next build.
+
+  - id: dev.cocoapods-cache
+    profile: developer
+    area: package-caches
+    title: CocoaPods cache
+    risk: safe
+    find: { paths: ["~/Library/Caches/CocoaPods"] }
+    regenerate: pod install downloads specs and pods again.
+
+  - id: dev.go-build-cache
+    profile: developer
+    area: package-caches
+    title: Go build cache
+    risk: safe
+    find: { paths: ["~/Library/Caches/go-build"] }
+    regenerate: go build recompiles packages as needed.
+
+  - id: dev.homebrew-cache
+    profile: developer
+    area: homebrew
+    title: Homebrew downloads and old versions
+    risk: safe
+    find: { detector: homebrew }
+    action: { type: tool, tool: brew-cleanup }
+    regenerate: Homebrew downloads bottles again only if you reinstall them.
+
+  - id: dev.node-modules
+    profile: developer
+    area: build-artifacts
+    title: node_modules folders
+    risk: review
+    insideUserFolders: true
+    minBytes: 50000000
+    find:
+      search:
+        roots: ["~"]
+        names: ["node_modules"]
+        requireSibling: ["package.json"]
+        git: ignored
+    regenerate: npm ci / npm install recreates it from the lockfile.
+
+  - id: dev.python-venv
+    profile: developer
+    area: build-artifacts
+    title: Python virtual environments
+    risk: review
+    insideUserFolders: true
+    minBytes: 50000000
+    find:
+      search:
+        roots: ["~"]
+        names: [".venv", "venv"]
+        requireSibling: ["pyproject.toml", "requirements*.txt", "setup.py", "uv.lock", "Pipfile"]
+        git: ignored
+    regenerate: uv sync / pip install recreates it.
+
+  - id: dev.build-outputs
+    profile: developer
+    area: build-artifacts
+    title: Build outputs (.next, Pods, Android build)
+    risk: review
+    insideUserFolders: true
+    minBytes: 50000000
+    find:
+      search:
+        roots: ["~"]
+        names: [".next", "Pods", ".gradle", "DerivedData"]
+        requireSibling: ["package.json", "Podfile", "build.gradle", "build.gradle.kts", "settings.gradle", "*.xcodeproj"]
+        git: clean-pushed
+    regenerate: The project's next build recreates it (npm run build, pod install, gradle build).
+    notes: ["Offered only when the repository is clean and pushed."]
+
+  - id: dev.android-app-build
+    profile: developer
+    area: build-artifacts
+    title: Android app build folders
+    risk: review
+    insideUserFolders: true
+    minBytes: 50000000
+    find:
+      search:
+        roots: ["~"]
+        names: ["build"]
+        requireSibling: ["build.gradle", "build.gradle.kts"]
+        git: clean-pushed
+    regenerate: The next Gradle build recreates it.
+    notes: ["Offered only when the repository is clean and pushed."]
+
+  - id: dev.xcode-derived-data
+    profile: developer
+    area: xcode
+    title: Xcode DerivedData
+    risk: safe
+    find: { paths: ["~/Library/Developer/Xcode/DerivedData"] }
+    regenerate: Xcode rebuilds indexes and build products on the next build.
+    requiresQuit: ["Xcode"]
+
+  - id: dev.xcode-device-support
+    profile: developer
+    area: xcode
+    title: Xcode iOS DeviceSupport
+    risk: review
+    find: { paths: ["~/Library/Developer/Xcode/iOS DeviceSupport", "~/Library/Developer/Xcode/watchOS DeviceSupport"] }
+    regenerate: Xcode copies symbols again the next time a device connects.
+
+  - id: dev.xcode-archives
+    profile: developer
+    area: xcode
+    title: Xcode Archives
+    risk: caution
+    find: { paths: ["~/Library/Developer/Xcode/Archives"] }
+    action: { type: report-only }
+    regenerate: Archives can't be regenerated exactly; keep the ones you shipped.
+
+  - id: dev.ios-simulators
+    profile: developer
+    area: ios-simulators
+    title: iOS simulator devices
+    risk: review
+    find: { detector: ios-simulators }
+    action: { type: tool, tool: simctl-delete-device }
+    regenerate: Create a fresh device in Xcode or with `xcrun simctl create`.
+    requiresQuit: ["Simulator"]
+
+  - id: dev.ios-runtimes
+    profile: developer
+    area: ios-runtimes
+    title: iOS simulator runtimes
+    risk: review
+    find: { detector: ios-runtimes }
+    action: { type: tool, tool: simctl-runtime-delete }
+    regenerate: Xcode → Settings → Components downloads the runtime again.
+    requiresQuit: ["Simulator"]
+    notes: ["Runtimes are deleted last, after devices, so no device is left orphaned."]
+
+  - id: dev.android-avds
+    profile: developer
+    area: android-emulators
+    title: Android emulators (AVDs)
+    risk: review
+    find: { detector: android-avds }
+    action: { type: tool, tool: avd-delete }
+    regenerate: Create a fresh AVD in Android Studio's Device Manager.
+    requiresQuit: ["qemu-system-aarch64", "qemu-system-x86_64"]
+
+  - id: dev.android-ndk-old
+    profile: developer
+    area: android-sdk
+    title: Older Android NDK versions
+    risk: review
+    find: { detector: android-ndk-old }
+    regenerate: Android Studio's SDK Manager installs any NDK version again.
+    notes: ["The newest NDK is always kept."]
+
+  - id: dev.node-versions-old
+    profile: developer
+    area: node-versions
+    title: Older Node.js versions (nvm)
+    risk: review
+    find: { detector: node-versions-old }
+    regenerate: nvm install <version> reinstalls it.
+    notes: ["The newest version of each major line is always kept."]
+
+  - id: dev.docker
+    profile: developer
+    area: docker
+    title: Docker images and build cache
+    risk: review
+    find: { detector: docker }
+    action: { type: tool, tool: docker-image-prune }
+    regenerate: docker pull / docker build recreates images.
+    notes: ["Volumes are listed but never removed in bulk."]
