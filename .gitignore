@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+.DS_Store
+# Local runs and reports never belong in git (they contain real paths).
+output/
+runs/
+# Real forbidden-strings list lives outside the repo; never commit one here.
+privacy/forbidden-strings.txt
+.env
+.env.*
+!.env.example
+site/node_modules/
+site/dist/
+site/.astro/

@@ -1,0 +1,88 @@
+{
+  "name": "mac-cleanup-agent",
+  "version": "1.0.0",
+  "description": "Free up disk space on your Mac safely: scan, report, approve, clean. A CLI and Claude Code plugin for developers, QA engineers, PMs and creators. Trash-first, protected data, before/after results.",
+  "type": "module",
+  "bin": {
+    "mac-cleanup-agent": "dist/cli/index.js"
+  },
+  "files": [
+    "dist/",
+    "rules/",
+    "skills/",
+    "agents/",
+    "hooks/",
+    "bin/",
+    ".claude-plugin/",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "sync:plugin": "rm -rf skills agents && cp -R .claude/skills skills && cp -R .claude/agents agents",
+    "prebuild": "npm run sync:plugin",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "check:mirror": "diff -rq .claude/skills skills && diff -rq .claude/agents agents",
+    "check:pack": "node scripts/check-pack.mjs",
+    "check:forbidden": "node scripts/check-forbidden.mjs",
+    "check": "npm run build && npm run lint && npm test && npm run check:mirror && npm run check:pack",
+    "version": "node scripts/sync-version.mjs && git add .claude-plugin/plugin.json .claude-plugin/marketplace.json",
+    "prepublishOnly": "npm run check"
+  },
+  "keywords": [
+    "mac",
+    "macos",
+    "cleanup",
+    "disk-space",
+    "free-up-space",
+    "storage",
+    "cleaner",
+    "developer-tools",
+    "node-modules",
+    "docker",
+    "xcode",
+    "ios-simulator",
+    "android-emulator",
+    "playwright",
+    "cli",
+    "claude",
+    "claude-code",
+    "plugin",
+    "ai-agent"
+  ],
+  "author": "William Oliveira",
+  "license": "MIT",
+  "os": [
+    "darwin"
+  ],
+  "engines": {
+    "node": ">=22.4.0"
+  },
+  "packageManager": "npm@10.9.2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willcoliveira/mac-cleanup-agent.git"
+  },
+  "homepage": "https://willcoliveira.github.io/mac-cleanup-agent/",
+  "bugs": {
+    "url": "https://github.com/willcoliveira/mac-cleanup-agent/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/willcoliveira"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0"
+  }
+}
