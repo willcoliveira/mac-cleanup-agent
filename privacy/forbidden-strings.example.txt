@@ -1,0 +1,5 @@
+# Placeholder list used in CI. Your real list (client, employer, family and
+# document names) lives at ~/.config/mac-cleanup-agent/forbidden-strings.txt
+# and is never committed. One term per line, whole-word, case-insensitive.
+example-client-name
+example-family-name
