@@ -90,8 +90,18 @@ function substitutions(command) {
 
 const base = (w) => w.split('/').pop();
 
-function lockHeld() {
-  return existsSync(join(runsDir(), '.lock'));
+/** Held only while the recorded pid is alive; a lock left by a killed run is stale. */
+export function lockHeld() {
+  const file = join(runsDir(), '.lock');
+  if (!existsSync(file)) return false;
+  const pid = Number(readFileSync(file, 'utf8').trim());
+  if (!Number.isInteger(pid) || pid <= 0) return true;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return e?.code === 'EPERM';
+  }
 }
 
 /** Returns 'deny:<reason>', 'ask:<reason>' or null for one segment. */

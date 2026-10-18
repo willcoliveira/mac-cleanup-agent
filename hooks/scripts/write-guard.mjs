@@ -16,9 +16,13 @@ const inside = (child, parent) => child === parent || child.startsWith(parent + 
 
 export function checkWrite(filePath, cwd) {
   const p = absolute(filePath, cwd);
-  const ours = [join(home(), 'Library/Application Support/mac-cleanup-agent'), join(home(), '.config/mac-cleanup-agent')];
-  if (ours.some((r) => inside(p, r))) {
-    return 'mac-cleanup-agent state can only change through its CLI (approvals set / veto), never by editing files.';
+  if (inside(p, join(home(), 'Library/Application Support/mac-cleanup-agent'))) {
+    return 'mac-cleanup-agent run state (scans, approvals, manifests) only changes through its CLI: approvals set / veto.';
+  }
+  const config = join(home(), '.config/mac-cleanup-agent');
+  // rules.yaml and organize.yaml are user settings; they can only add protection, never remove it.
+  if (inside(p, config) && !['rules.yaml', 'organize.yaml'].includes(p.slice(config.length + 1))) {
+    return 'only rules.yaml and organize.yaml in ~/.config/mac-cleanup-agent may be edited.';
   }
   return null;
 }

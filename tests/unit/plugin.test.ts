@@ -126,20 +126,30 @@ describe('hook guards', () => {
     for (const cmd of ['ls -la', 'rm -rf node_modules', 'rm -rf ~/Documents/app/dist', 'git status', 'mac-cleanup-agent scan --summary', 'mac-cleanup-agent clean --run scan_x']) expect(check(cmd), cmd).toBeNull();
   });
 
-  it('deny every delete while a cleanup run holds the lock', () => {
+  it('deny every delete while a live cleanup run holds the lock, but ignore a stale lock', () => {
     const home = mkdtempSync(join(tmpdir(), 'mca-hook-'));
     process.env.MCA_HOOK_HOME = home;
     const runs = join(home, 'Library/Application Support/mac-cleanup-agent/runs');
     mkdirSync(runs, { recursive: true });
-    writeFileSync(join(runs, '.lock'), '1');
+    writeFileSync(join(runs, '.lock'), String(process.pid));
     expect(checkCommand('rm -rf build', { cwd: home })).toMatch(/^deny:.*in progress/);
+    // A run killed with Ctrl-C leaves its pid behind; a dead pid must not block the user's work.
+    writeFileSync(join(runs, '.lock'), '999999');
+    expect(checkCommand('rm -rf build', { cwd: home })).toBeNull();
     rmSync(home, { recursive: true, force: true });
     process.env.MCA_HOOK_HOME = h;
   });
 
+  it('block on hook failure or timeout', () => {
+    const hooks = JSON.parse(readFileSync(join(ROOT, 'hooks/hooks.json'), 'utf8'));
+    for (const entry of hooks.hooks.PreToolUse) for (const hk of entry.hooks) expect(hk.onFailure).toBe('block');
+  });
+
   it('deny edits of the tool’s own state', () => {
-    expect(checkWrite(`${h}/Library/Application Support/mac-cleanup-agent/runs/scan_x/approvals.yaml`, '/')).toMatch(/only change through its CLI/);
+    expect(checkWrite(`${h}/Library/Application Support/mac-cleanup-agent/runs/scan_x/approvals.yaml`, '/')).toMatch(/only changes through its CLI/);
     expect(checkWrite(`${h}/Documents/app/README.md`, '/')).toBeNull();
+    expect(checkWrite(`${h}/.config/mac-cleanup-agent/rules.yaml`, '/')).toBeNull();
+    expect(checkWrite(`${h}/.config/mac-cleanup-agent/forbidden-strings.txt`, '/')).toMatch(/may be edited/);
   });
 
   it('fail closed on malformed input that looks destructive, and run as a real hook', () => {

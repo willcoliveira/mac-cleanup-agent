@@ -33,4 +33,4 @@ Checklist:
 1. Open an issue first for anything that changes what can be deleted.
 2. Conventional Commits (`feat(scan): …`, `fix(clean): …`), one line in CHANGELOG.md.
 3. Disk-touching changes need a fake-platform test, plus a test that fails when the
-   safety check is removed. CLAUDE.md lists the absolute security rules.
+   safety check is removed. .claude/CLAUDE.md lists the absolute security rules.
