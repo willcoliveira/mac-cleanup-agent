@@ -11,11 +11,15 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// The placeholder list is skipped: it would always match itself.
+const EXAMPLE = 'privacy/forbidden-strings.example.txt';
 const candidates = [
   process.env.FORBIDDEN_STRINGS_FILE,
   join(homedir(), '.config/mac-cleanup-agent/forbidden-strings.txt'),
-  join(root, 'privacy/forbidden-strings.example.txt'),
-].filter(Boolean);
+  join(root, EXAMPLE),
+]
+  .filter(Boolean)
+  .map((p) => resolve(p));
 const listPath = candidates.find((p) => existsSync(p));
 if (!listPath) {
   console.error('check-forbidden: no list found');
@@ -32,7 +36,7 @@ const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 
 const hits = [];
 const files = git('ls-files', '-z', '--cached', '--others', '--exclude-standard').split('\0').filter(Boolean);
 for (const f of files) {
-  if (f === 'package-lock.json' || f.startsWith('site/package-lock.json')) continue;
+  if (f === 'package-lock.json' || f.startsWith('site/package-lock.json') || f === EXAMPLE) continue;
   const path = join(root, f);
   if (!existsSync(path)) continue;
   if (pattern.test(f)) hits.push(`${f}: (file name)`);
@@ -49,8 +53,14 @@ if (process.argv.includes('--history')) {
   } catch {
     log = '';
   }
+  let inExample = false;
   log.split('\n').forEach((line) => {
-    if (line.startsWith('commit ')) return;
+    if (line.startsWith('commit ')) {
+      inExample = false;
+      return;
+    }
+    if (line.startsWith('diff --git ')) inExample = line === `diff --git a/${EXAMPLE} b/${EXAMPLE}`;
+    if (inExample) return;
     const m = line.match(pattern);
     if (m) hits.push(`history: "${m[1]}" in: ${line.slice(0, 80)}`);
   });
@@ -62,7 +72,7 @@ if (process.argv.includes('--history')) {
   }
 }
 if (hits.length) {
-  console.error(`check-forbidden: ${hits.length} hit(s) using ${listPath === join(root, 'privacy/forbidden-strings.example.txt') ? 'the example list' : 'your private list'}:`);
+  console.error(`check-forbidden: ${hits.length} hit(s) using ${listPath === join(root, EXAMPLE) ? 'the example list' : 'your private list'}:`);
   for (const h of hits.slice(0, 50)) console.error('  ' + h);
   process.exit(1);
 }
