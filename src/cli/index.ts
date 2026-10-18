@@ -117,7 +117,7 @@ program
     const env = await detectEnvironment(platform);
     const fs = await platform.statfs(platform.home);
     const root = refuseRoot(platform);
-    const data = { contract_version: 1, ...env, rootRefused: Boolean(root), freeBytes: fs.available, totalBytes: fs.total };
+    const data = { contract_version: 1, ...env, rootRefused: Boolean(root), freeBytes: fs.available, totalBytes: fs.total, judgeModel: loadUserConfig(platform.home).judge_model };
     print(Boolean(o.json), data, () =>
       [
         bold('mac-cleanup-agent doctor'),

@@ -1,0 +1,14 @@
+{
+  "name": "mac-cleanup-agent",
+  "displayName": "Mac Cleanup Agent",
+  "version": "1.0.0",
+  "description": "Free up disk space on your Mac safely: Claude scans, explains what is taking space, interviews you for approvals, moves items to the Trash and shows the result from X GB to Y GB free. Protected data is never offered.",
+  "author": {
+    "name": "William Oliveira",
+    "url": "https://github.com/willcoliveira"
+  },
+  "homepage": "https://willcoliveira.github.io/mac-cleanup-agent/",
+  "repository": "https://github.com/willcoliveira/mac-cleanup-agent",
+  "license": "MIT",
+  "keywords": ["mac", "macos", "disk-space", "cleanup", "free-up-space", "developer-tools", "docker", "xcode", "simulators"]
+}

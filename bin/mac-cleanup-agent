@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# mac-cleanup-agent launcher shim. A plugin installed from git has no dist/ (tsup
+# output) and no node_modules, so the CLI cannot run in place. When a built local
+# copy exists, run it; otherwise run the published npm package via npx, pinned to
+# this plugin's exact version so the skills and the CLI always speak the same
+# contract. Never falls back to `latest`, and never runs install scripts.
+set -euo pipefail
+
+SELF="${BASH_SOURCE[0]}"
+while [ -L "$SELF" ]; do
+  LINK="$(readlink "$SELF")"
+  case "$LINK" in /*) SELF="$LINK" ;; *) SELF="$(dirname "$SELF")/$LINK" ;; esac
+done
+ROOT="$(cd "$(dirname "$SELF")/.." && pwd -P)"
+
+if [ -f "$ROOT/dist/cli/index.js" ] && [ -d "$ROOT/node_modules" ]; then
+  exec node "$ROOT/dist/cli/index.js" "$@"
+fi
+
+case "$(pwd -P)/" in
+  "$ROOT"/*)
+    cat >&2 <<MSG
+mac-cleanup-agent: no CLI build in $ROOT and the working directory is inside that
+                   tree, so npx cannot resolve the published package from here.
+
+  Build it once:   cd "$ROOT" && npm ci && npm run build
+  Or run from a directory outside $ROOT.
+MSG
+    exit 1
+    ;;
+esac
+
+VER="$(MCA_ROOT="$ROOT" node -p "try{require(process.env.MCA_ROOT+'/.claude-plugin/plugin.json').version}catch{''}" 2>/dev/null || true)"
+if ! printf '%s' "$VER" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+  echo "mac-cleanup-agent: cannot read a version from $ROOT/.claude-plugin/plugin.json; reinstall the plugin." >&2
+  exit 1
+fi
+
+export npm_config_ignore_scripts=true
+exec npx -y -p "mac-cleanup-agent@$VER" mac-cleanup-agent "$@"
