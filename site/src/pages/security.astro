@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Security and privacy: what a Mac cleaner should never do | mac-cleanup-agent" description="How mac-cleanup-agent protects your data: nothing leaves your Mac, protected folders, Trash-first deletes, identity checks, human-confirmed emptying, and Full Disk Access guidance.">
+  <h1>Security &amp; privacy</h1>
+  <h2>What leaves your Mac</h2>
+  <table>
+    <tr><th>Feature</th><th>What is sent</th><th>To whom</th></tr>
+    <tr><td>The CLI</td><td>Nothing</td><td>Nobody</td></tr>
+    <tr><td>Telemetry</td><td>There is none</td><td>Nobody</td></tr>
+    <tr><td>Claude Code plugin</td><td>The scan summary and item labels, as part of your conversation</td><td>Anthropic, under your Claude Code account</td></tr>
+    <tr><td>Shareable summary</td><td>Area names and numbers only</td><td>claude.ai Artifacts, private until you share</td></tr>
+  </table>
+  <h2>What is never offered</h2>
+  <p>Keychains, <code>~/.ssh</code>, <code>~/.gnupg</code>, the Trash itself and the tool's own state, always. By default also the Photos library, Mail, Messages, iCloud Drive, cloud storage folders, Contacts, Calendars, browser profiles, iPhone backups, credential files, downloaded ML models, and your Documents, Desktop, Pictures, Music and Movies folders themselves.</p>
+  <h2>How deletes work</h2>
+  <ul>
+    <li>Approved items move to the <strong>Trash</strong>, through the same macOS API Finder uses.</li>
+    <li>Right before each move, the item is checked again: same inode, no symlink in its path, still not protected.</li>
+    <li><strong>Emptying</strong> deletes only the Trash entries this run created, and only if they still match. Your own Trash items are never touched.</li>
+    <li>Emptying needs your confirmation: a typed phrase in the terminal, or Claude Code's permission dialog. Without a backup, it asks twice.</li>
+  </ul>
+  <h2>Security findings</h2>
+  <p>The scan lists secret-looking files left in Downloads, Desktop and Documents (2FA recovery codes, OAuth client secrets, certificates, keys) and credential files other users can read. It never opens them. The only fix it can apply is tightening permissions, with your approval.</p>
+  <h2>Full Disk Access</h2>
+  <p>Needed to see Downloads, Desktop and the Trash. While it is on, anything started from that terminal can read your whole disk, so turn it off again when you are done.</p>
+  <h2>Reporting a vulnerability</h2>
+  <p>Use GitHub private vulnerability reporting on the <a href="https://github.com/willcoliveira/mac-cleanup-agent/security">repository</a>.</p>
+</Base>

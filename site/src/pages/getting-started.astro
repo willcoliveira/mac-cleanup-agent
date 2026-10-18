@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Getting started: clean up your Mac in 5 steps | mac-cleanup-agent" description="Install mac-cleanup-agent, grant Full Disk Access, scan, approve, clean and empty the Trash safely. Step-by-step guide for macOS 14+.">
+  <h1>Getting started</h1>
+  <h2>1. Install</h2>
+  <pre><code>npm install -g mac-cleanup-agent
+mac-cleanup-agent doctor</code></pre>
+  <p>Needs macOS 14 or later and Node.js 22 or later.</p>
+  <h2>2. Grant Full Disk Access</h2>
+  <p>macOS hides Downloads, Desktop, the Trash, Mail and more from apps without Full Disk Access, so a scan without it misses a large part of your disk. The scan refuses to run until it is granted.</p>
+  <ol>
+    <li>System Settings → Privacy &amp; Security → Full Disk Access → turn on your terminal app. Click <strong>+</strong> if it is missing.</li>
+    <li>Quit that app completely (Cmd+Q) and open it again. A new tab is not enough.</li>
+    <li>Run <code>mac-cleanup-agent doctor</code> again.</li>
+  </ol>
+  <p>Turn it off again when you are done.</p>
+  <h2>3. Scan and read the report</h2>
+  <pre><code>mac-cleanup-agent scan
+mac-cleanup-agent report --format html</code></pre>
+  <p>Risk levels: <strong>safe</strong> comes back by itself, <strong>review</strong> costs a download or rebuild, <strong>caution</strong> might be yours and is never pre-approved.</p>
+  <h2>4. Approve</h2>
+  <pre><code>mac-cleanup-agent approvals init
+mac-cleanup-agent approvals set --area package-caches=true --area docker=true</code></pre>
+  <h2>5. Clean, empty, see the result</h2>
+  <pre><code>mac-cleanup-agent clean          # dry run
+mac-cleanup-agent clean --yes    # move to the Trash
+mac-cleanup-agent empty          # type the phrase to confirm
+mac-cleanup-agent results        # From X GB to Y GB free</code></pre>
+  <p>Changed your mind before emptying? Finder → Trash → Put Back.</p>
+</Base>

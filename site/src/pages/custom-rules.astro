@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Custom cleanup rules | mac-cleanup-agent" description="Add your own cleanup rules, switch built-in ones off, change size thresholds and protect folders with ~/.config/mac-cleanup-agent/rules.yaml.">
+  <h1>Custom rules</h1>
+  <p>Create <code>~/.config/mac-cleanup-agent/rules.yaml</code>:</p>
+  <pre><code>disable: [qa.screenshots]
+minBytes: &#123; dev.node-modules: 200000000 &#125;
+protect: ["~/Projects/keep-this"]
+judge_model: auto
+rules:
+  - id: user.render-cache
+    profile: creator
+    area: media-intermediates
+    title: My render cache
+    risk: review
+    find: &#123; paths: ["~/Renders/cache"] &#125;
+    regenerate: The editor re-renders it on open.</code></pre>
+  <ul>
+    <li>User rules can add candidates and protections. They can never remove a protection, and are always at least <code>review</code> risk.</li>
+    <li>Patterns are names with <code>*</code> and <code>?</code> wildcards, never regular expressions.</li>
+    <li><code>mac-cleanup-agent rules validate</code> checks your file.</li>
+  </ul>
+  <h2>Organize rules</h2>
+  <p>Copy the built-in <code>rules/organize/organize.yaml</code> to <code>~/.config/mac-cleanup-agent/organize.yaml</code> and change categories or keywords. Matching ignores case and accents, and the first matching category wins.</p>
+</Base>

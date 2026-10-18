@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Claude Code plugin: an AI Mac cleanup that asks first | mac-cleanup-agent" description="Use mac-cleanup-agent inside Claude Code: Claude explains your disk usage, interviews you for approvals, a risk judge vetoes risky items, and hooks block unsafe deletes.">
+  <h1>Claude Code plugin</h1>
+  <pre><code>claude plugin marketplace add willcoliveira/mac-cleanup-agent
+claude plugin install mac-cleanup-agent@mac-cleanup-agent</code></pre>
+  <p>Skills: <code>/mac-cleanup-agent:cleanup</code> (the full flow), <code>:scan</code>, <code>:organize</code>, <code>:security</code>. Or just describe what you want.</p>
+  <h2>Quick and deep mode</h2>
+  <table>
+    <tr><th>Mode</th><th>What Claude does</th></tr>
+    <tr><td>Quick (default)</td><td>Reads a compact summary, explains it, interviews you, has the judge review, cleans. The CLI does every measurement and change.</td></tr>
+    <tr><td>Deep ("deep clean")</td><td>Also investigates big folders no rule covers with cheap sub-agents. Their suggestions are labelled as AI suggestions and need your yes one by one.</td></tr>
+  </table>
+  <h2>Sub-agents and models</h2>
+  <table>
+    <tr><th>Agent</th><th>Model</th><th>Can do</th></tr>
+    <tr><td>Area indexer</td><td>haiku</td><td>List folder contents (names, sizes, dates); no file reading</td></tr>
+    <tr><td>Area analyst</td><td>sonnet</td><td>Propose clearly regenerable entries with a reason</td></tr>
+    <tr><td>Risk judge</td><td>opus, else fable, else sonnet</td><td>Show the approved list and veto items; never approve</td></tr>
+    <tr><td>Reporter</td><td>sonnet</td><td>Results, reports, cost estimate</td></tr>
+  </table>
+  <p>Choose the judge model with <code>judge_model: auto | opus | fable | sonnet</code> in <code>~/.config/mac-cleanup-agent/rules.yaml</code>. The report shows the estimated token cost of each phase.</p>
+  <h2>Hook guards</h2>
+  <p>While the plugin is enabled, Claude Code runs guards before every shell command: deletes of protected data are denied however they are written, every delete is denied while a cleanup is running, <code>sudo</code>, <code>osascript</code> and inline interpreters are denied, and moving to the Trash or emptying it always asks you. Emptying is refused entirely when permissions are bypassed.</p>
+</Base>

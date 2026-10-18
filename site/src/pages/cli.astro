@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+const rows = [
+  ['doctor', 'Full Disk Access, backup, iCloud Desktop & Documents sync, running apps, free space'],
+  ['scan [--profile] [--area] [--summary|--json]', 'Read-only scan; writes the run inventory'],
+  ['report [--run] [--format terminal,md,html,json,artifact]', 'Reports for a run'],
+  ['approvals init | set | show | veto', 'Create and change approvals by area or item id'],
+  ['clean [--run] [--yes]', 'Dry run, then move approved items to the Trash'],
+  ['empty [--run]', "Permanently delete only this run's Trash entries"],
+  ['results | audit | runs', 'Before/after numbers, read-only re-check, past runs'],
+  ['organize [--dir] [--dest] [--apply <plan>]', 'Sort loose documents into category folders'],
+  ['security [--fix <id> --yes]', 'Secrets left lying around; tighten loose permissions'],
+  ['inspect <folder> | propose', 'Deep mode: look inside unknown folders and propose items'],
+  ['unlock <exact path>', 'Let one protected path be scanned once (typed in a terminal)'],
+  ['rules list | validate', 'The effective rule catalog'],
+  ['cost [--run]', 'Estimated token cost of a plugin run, per phase'],
+];
+---
+<Base title="CLI reference | mac-cleanup-agent" description="Every mac-cleanup-agent command: doctor, scan, report, approvals, clean, empty, results, organize, security, inspect, unlock, rules and cost.">
+  <h1>CLI reference</h1>
+  <table><tr><th>Command</th><th>What it does</th></tr>{rows.map(([c, d]) => <tr><td><code>{c}</code></td><td>{d}</td></tr>)}</table>
+  <h2>Exit codes</h2>
+  <p><code>0</code> ok · <code>1</code> error · <code>2</code> bad usage · <code>3</code> Full Disk Access missing · <code>4</code> a human confirmation was not given.</p>
+  <h2>Where runs are stored</h2>
+  <p><code>~/Library/Application Support/mac-cleanup-agent/runs/&lt;scan id&gt;/</code>: <code>scan.json</code>, <code>approvals.yaml</code>, <code>manifest.jsonl</code>, <code>results.json</code>, reports. Never in your working directory.</p>
+</Base>

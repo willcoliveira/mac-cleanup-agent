@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+const faqs = [
+  ['Is it free?', 'Yes. MIT licensed, no account, no telemetry. The Claude Code plugin uses your own Claude Code subscription or API key.'],
+  ['Does it need Full Disk Access?', 'Yes, for the scan. Without it macOS hides Downloads, Desktop and the Trash, so the result would be wrong. Turn it off again afterwards.'],
+  ['Can it delete my photos or documents?', 'No. Photos, Mail, Messages, iCloud Drive, browser profiles and your Documents and Desktop folders are protected. Only specific regenerable things inside projects, like node_modules, can be offered.'],
+  ['What if I approve something by mistake?', 'Everything goes to the Trash first. Until you empty it, use Finder → Trash → Put Back.'],
+  ['Why is Docker or my simulator cleanup not in the Trash?', 'Those are removed with the tools themselves (docker image prune, xcrun simctl delete), the only safe way. Dry runs list them separately.'],
+  ['How is this different from CleanMyMac or DaisyDisk?', 'It is open source, made for developer and test tooling (node_modules, Docker, simulators, Playwright), never deletes without an approval tied to an exact inventory, and can be driven by Claude in plain language.'],
+  ['Does it work on Intel Macs?', 'Yes. macOS 14 or later, Apple Silicon or Intel.'],
+  ['How much does the Claude plugin cost in tokens?', 'Quick mode reads one compact summary. Deep mode uses cheaper sub-agents. The final report shows the estimated cost of each phase.'],
+];
+const jsonLd = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) };
+---
+<Base title="FAQ: freeing up space on a Mac safely | mac-cleanup-agent" description="Answers about Full Disk Access, protected data, the Trash, Docker and simulators, Intel support and token costs." jsonLd={jsonLd}>
+  <h1>FAQ</h1>
+  {faqs.map(([q, a]) => <><h2>{q}</h2><p>{a}</p></>)}
+</Base>

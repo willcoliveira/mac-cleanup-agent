@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parse } from 'yaml';
+// Generated from the shipped YAML at build time, so the page can never drift from the tool.
+const dir = join(process.cwd(), '..', 'rules');
+const rules = readdirSync(dir).filter((f) => f.endsWith('.yaml')).sort().flatMap((f) => parse(readFileSync(join(dir, f), 'utf8')).rules);
+const profiles = ['developer', 'qa', 'pm', 'creator', 'common'];
+const where = (r) => r.find.paths ? r.find.paths.join(', ') : r.find.search ? `folders named ${r.find.search.names.join(', ')}` : `detector: ${r.find.detector}`;
+---
+<Base title={`Rules catalog: ${rules.length} places your Mac fills up | mac-cleanup-agent`} description="Every built-in cleanup rule: the location, the risk level and how the space comes back. npm, pip, uv, Gradle, Docker, Xcode, simulators, Playwright, Downloads and more.">
+  <h1>Rules catalog</h1>
+  <p class="lead">{rules.length} built-in rules. Each one says where it looks, how risky it is, and how the space comes back.</p>
+  {profiles.map((p) => (
+    <>
+      <h2>{p}</h2>
+      <table>
+        <tr><th>Rule</th><th>Where</th><th>Risk</th><th>How it comes back</th></tr>
+        {rules.filter((r) => r.profile === p).map((r) => <tr><td><strong>{r.title}</strong><br /><code>{r.id}</code></td><td>{where(r)}</td><td>{r.risk}{r.action?.type === 'report-only' ? ' (report only)' : ''}</td><td>{r.regenerate}</td></tr>)}
+      </table>
+    </>
+  ))}
+</Base>

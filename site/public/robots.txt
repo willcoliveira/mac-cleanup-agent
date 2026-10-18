@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://willcoliveira.github.io/mac-cleanup-agent/sitemap-index.xml

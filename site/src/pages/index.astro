@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'mac-cleanup-agent',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'macOS 14 or later',
+  description: 'Free, open-source Mac disk cleanup for developers, QA engineers, PMs and creators: scan, approve, clean safely through the Trash, see before and after free space.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  license: 'https://opensource.org/licenses/MIT',
+  url: 'https://willcoliveira.github.io/mac-cleanup-agent/',
+  codeRepository: 'https://github.com/willcoliveira/mac-cleanup-agent',
+};
+---
+<Base title="Free up disk space on your Mac safely | mac-cleanup-agent" description="Open-source Mac cleanup CLI and Claude Code plugin. Find what fills your disk (node_modules, Docker, Xcode, simulators, caches, Downloads), approve what goes, clean through the Trash, see from X GB to Y GB free." jsonLd={jsonLd}>
+  <h1>Free up disk space on your Mac, safely</h1>
+  <p class="lead">mac-cleanup-agent scans your Mac, explains what is taking space, asks you what to remove, moves it to the Trash and shows the result: <strong>from 145 GB to 267 GB free</strong>. A free command-line tool and a Claude Code plugin.</p>
+  <p><a class="cta" href={`${base}getting-started/`}>Get started</a> &nbsp; <code>npm install -g mac-cleanup-agent</code></p>
+
+  <h2>Who it is for</h2>
+  <div class="grid">
+    <div class="card"><h3>Developers</h3><p>node_modules and virtualenvs, npm/pip/uv/Gradle/Yarn caches, Docker images and build cache, Xcode DerivedData, iOS simulators and runtimes, Android emulators, old Node versions, Homebrew.</p></div>
+    <div class="card"><h3>QA engineers</h3><p>Old Playwright browser builds, Cypress cache, test reports and traces, screenshots and screen recordings from test sessions.</p></div>
+    <div class="card"><h3>PMs and business users</h3><p>Installers left in Downloads, zips already extracted, Chrome, Slack, Teams and VS Code caches, and sorting invoices and documents into folders.</p></div>
+    <div class="card"><h3>Creators</h3><p>Final Cut render files, byte-identical duplicates and the biggest files, reported, never offered: your media stays yours.</p></div>
+  </div>
+
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Doctor:</strong> checks Full Disk Access, your backup, iCloud sync and running apps.</li>
+    <li><strong>Scan:</strong> 39 rules measure allocated size, not apparent size (a sparse 460 GB Docker disk holding 25 GB counts as 25 GB). Read-only.</li>
+    <li><strong>Report:</strong> every area with its size, risk, and how it comes back.</li>
+    <li><strong>Approve:</strong> Claude interviews you area by area, or you edit <code>approvals.yaml</code>. A risk judge can veto, never add.</li>
+    <li><strong>Clean:</strong> approved items move to the Trash, each re-checked right before it moves.</li>
+    <li><strong>Empty:</strong> only this run's items, after you confirm. Your own Trash items stay.</li>
+    <li><strong>Results:</strong> from X GB to Y GB free, an HTML report, and a shareable summary without file names.</li>
+  </ol>
+
+  <h2>Why it is safe</h2>
+  <table>
+    <tr><th>Risk</th><th>What mac-cleanup-agent does</th></tr>
+    <tr><td>Deleting something personal</td><td>Photos, Mail, Messages, Keychains, ~/.ssh, iCloud Drive, browser profiles and your Documents and Desktop folders are protected. Camera photos are never mistaken for screenshots.</td></tr>
+    <tr><td>Something changed after the scan</td><td>Every item is bound to its inode and real path. Swapped symlinks, replaced folders and resized files are skipped.</td></tr>
+    <tr><td>An AI deleting things on its own</td><td>Claude only ever handles item ids. Removing anything needs your yes, and emptying the Trash needs your confirmation in Claude Code's permission dialog.</td></tr>
+    <tr><td>Emptying your other Trash items</td><td>The tool records exactly where each item landed in the Trash and deletes only those.</td></tr>
+    <tr><td>Data leaving your Mac</td><td>None. No telemetry. The shareable summary holds area names and numbers only.</td></tr>
+  </table>
+  <p><a href={`${base}security/`}>Read the security and privacy details</a>.</p>
+
+  <h2>Use it with Claude Code</h2>
+  <pre><code>claude plugin marketplace add willcoliveira/mac-cleanup-agent
+claude plugin install mac-cleanup-agent@mac-cleanup-agent</code></pre>
+  <p>Then just say <em>"my disk is full, help me clean up"</em>, or <em>"only Docker and the old simulators"</em>, or <em>"deep clean"</em>. <a href={`${base}plugin/`}>How the plugin works</a>.</p>
+</Base>
