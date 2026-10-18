@@ -124,6 +124,25 @@ describe('scan → approve → clean → empty', () => {
     expect(readFileSync(entry.resulting!, 'utf8')).toBe('unrelated file the user trashed later');
   });
 
+  it('offers an unlocked protected path only for that scan, and cleans it', async () => {
+    const target = fx.file('Library/Mail/Downloads-cache/big.bin', 3_000_000);
+    const dir = join(fx.home, 'Library/Mail/Downloads-cache');
+    const rule = { id: 'user.mail-cache', profile: 'common' as const, area: 'app-caches' as const, title: 'Mail attachment cache', risk: 'review' as const, find: { paths: ['~/Library/Mail/Downloads-cache'] }, action: { type: 'trash' as const }, regenerate: 'Mail downloads attachments again', minBytes: 0, requiresQuit: [], insideUserFolders: false, notes: [] };
+    const plain = await runScan(fx.p, { profiles: ['developer'], areas: ['app-caches'], rules: [rule], protection: fx.protection });
+    expect(plain.items.map((i) => i.path)).not.toContain(dir);
+
+    const unlockedCtx = { ...fx.protection, unlocked: new Set([dir]) };
+    const scan = await runScan(fx.p, { profiles: ['developer'], areas: ['app-caches'], rules: [rule], protection: unlockedCtx });
+    expect(scan.unlocked).toEqual([dir]);
+    expect(scan.items.map((i) => i.path)).toContain(dir);
+    fx.store.saveScan(scan);
+    const { sha } = fx.store.loadScan(scan.scan_id);
+    const a = approve(fx, scan, sha, { 'app-caches': true });
+    await executeClean(fx.p, fx.store, await planClean(fx.p, scan, a), { ...fx.protection, unlocked: new Set(scan.unlocked) });
+    expect(existsSync(target)).toBe(false);
+    expect(existsSync(home.mailFile)).toBe(true);
+  });
+
   it('blocks items whose app is still running', async () => {
     fx = makeFixture({ tools: { '/usr/bin/pgrep': (args) => (args[1] === 'Google Chrome' ? { code: 0, stdout: '123\n', stderr: '' } : { code: 1, stdout: '', stderr: '' }) } });
     buildStandardHome(fx);

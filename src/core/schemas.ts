@@ -174,6 +174,8 @@ export const Scan = z
       z.object({ bytes: z.number().int().nonnegative(), labels: z.array(z.string().max(160)).min(2) }).strict(),
     ),
     warnings: z.array(z.string()),
+    /** Exact paths a human unlocked for this scan; clean honours the same set. */
+    unlocked: z.array(z.string()).default([]),
   })
   .strict();
 export type Scan = z.infer<typeof Scan>;

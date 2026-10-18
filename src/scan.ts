@@ -144,6 +144,7 @@ export async function runScan(p: Platform, opts: ScanOptions): Promise<Scan> {
   if (environment.icloudDesktopDocuments === 'on') {
     warnings.push('iCloud Desktop & Documents sync is on: files moved to the Trash from Desktop or Documents are also removed from iCloud and your other devices.');
   }
+  for (const u of opts.protection.unlocked) warnings.push(`Unlocked for this scan by you: ${displayLabel(u, p.home)}`);
   if (!environment.backup.configured) warnings.push('No Time Machine backup is configured. Emptying the Trash at the end will need an extra confirmation.');
 
   const scan: Scan = {
@@ -161,6 +162,7 @@ export async function runScan(p: Platform, opts: ScanOptions): Promise<Scan> {
     security: await scanSecurity(p),
     duplicates: duplicates.map((d) => ({ bytes: d.bytes, labels: d.paths.map((x) => displayLabel(x, p.home)) })),
     warnings,
+    unlocked: [...opts.protection.unlocked],
   };
   return Scan.parse(scan);
 }

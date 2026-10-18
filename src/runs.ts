@@ -163,7 +163,21 @@ export class RunStore {
         /* already gone */
       }
     };
+    // Node does not emit 'exit' when killed by an unhandled signal, so a Ctrl-C mid-clean
+    // would leave the lock behind (and the plugin's hook would block every delete).
+    const onSignal = (sig: NodeJS.Signals) => {
+      release();
+      process.exit(sig === 'SIGINT' ? 130 : 143);
+    };
     process.once('exit', release);
-    return release;
+    process.once('SIGINT', onSignal);
+    process.once('SIGTERM', onSignal);
+    process.once('SIGHUP', onSignal);
+    return () => {
+      release();
+      process.removeListener('SIGINT', onSignal);
+      process.removeListener('SIGTERM', onSignal);
+      process.removeListener('SIGHUP', onSignal);
+    };
   }
 }

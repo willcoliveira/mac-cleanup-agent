@@ -195,9 +195,11 @@ approvals
   .command('init')
   .description('Write approvals.yaml with every decision off')
   .option('--run <id>', 'scan id (default: latest)')
-  .action((o: { run?: string }) => {
+  .option('--force', 'replace an existing approvals.yaml')
+  .action((o: { run?: string; force?: boolean }) => {
     const id = resolveRun(o.run);
     const s = store();
+    if (existsSync(s.approvalsPath(id)) && !o.force) throw new ExitError(`approvals already exist for ${id} (${s.approvalsPath(id)}); use --force to start over`, 2);
     const { scan, sha } = s.loadScan(id);
     process.stdout.write(s.initApprovals(scan, sha) + '\n');
   });
@@ -300,7 +302,7 @@ program
       return;
     }
     appendFileSync(phaseFile(id), JSON.stringify({ phase: 'clean', at: platform.now().toISOString() }) + '\n', { mode: 0o600 });
-    const results = await executeClean(platform, s, plan, protection(), {
+    const results = await executeClean(platform, s, plan, protection(scan.unlocked), {
       onItem: o.json ? undefined : (item, e) => process.stdout.write(`${e.status === 'ok' ? green('✓') : yellow('•')} ${item.label}${e.reason ? dim(` (${e.reason})`) : ''}\n`),
     });
     print(Boolean(o.json), results, () => renderResults(results));
