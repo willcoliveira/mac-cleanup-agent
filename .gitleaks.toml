@@ -1,0 +1,13 @@
+title = "mac-cleanup-agent gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Build output, dependencies and synthetic test fixtures"
+paths = [
+  '''node_modules/''',
+  '''site/node_modules/''',
+  '''dist/''',
+  '''package-lock\.json''',
+]
